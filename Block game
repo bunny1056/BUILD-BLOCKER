@@ -1,0 +1,103 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Block Breaker 2D")
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+
+# Game objects
+PADDLE_WIDTH, PADDLE_HEIGHT = 100, 10
+BALL_RADIUS = 10
+BLOCK_WIDTH, BLOCK_HEIGHT = 60, 20
+
+# Paddle
+paddle = pygame.Rect(WIDTH // 2 - PADDLE_WIDTH // 2, HEIGHT - 40, PADDLE_WIDTH, PADDLE_HEIGHT)
+
+# Ball
+ball = pygame.Rect(WIDTH // 2, HEIGHT - 60, BALL_RADIUS * 2, BALL_RADIUS * 2)
+ball_dx = 4 * random.choice((1, -1))
+ball_dy = -4
+
+# Blocks
+blocks = []
+rows, cols = 5, 10
+padding = 10
+for row in range(rows):
+    for col in range(cols):
+        block_x = padding + col * (BLOCK_WIDTH + padding)
+        block_y = padding + row * (BLOCK_HEIGHT + padding)
+        blocks.append(pygame.Rect(block_x, block_y, BLOCK_WIDTH, BLOCK_HEIGHT))
+
+# Clock
+clock = pygame.time.Clock()
+running = True
+
+# Game loop
+while running:
+    clock.tick(60)
+    screen.fill(BLACK)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Paddle movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and paddle.left > 0:
+        paddle.x -= 7
+    if keys[pygame.K_RIGHT] and paddle.right < WIDTH:
+        paddle.x += 7
+
+    # Move ball
+    ball.x += ball_dx
+    ball.y += ball_dy
+
+    # Wall collision
+    if ball.left <= 0 or ball.right >= WIDTH:
+        ball_dx *= -1
+    if ball.top <= 0:
+        ball_dy *= -1
+    if ball.bottom >= HEIGHT:
+        print("Game Over!")
+        running = False
+
+    # Paddle collision
+    if ball.colliderect(paddle):
+        ball_dy *= -1
+
+    # Block collision
+    for block in blocks[:]:
+        if ball.colliderect(block):
+            blocks.remove(block)
+            ball_dy *= -1
+            break
+
+    # Draw paddle
+    pygame.draw.rect(screen, BLUE, paddle)
+
+    # Draw ball
+    pygame.draw.circle(screen, RED, (ball.centerx, ball.centery), BALL_RADIUS)
+
+    # Draw blocks
+    for block in blocks:
+        pygame.draw.rect(screen, GREEN, block)
+
+    # Win condition
+    if not blocks:
+        print("You Win!")
+        running = False
+
+    pygame.display.flip()
+
+pygame.quit()
