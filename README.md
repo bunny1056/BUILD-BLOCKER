@@ -1,4 +1,4 @@
-# BUILD-BLOCKER
+
 # 🧱 Block Breaker 2D Game (Python + Pygame)
 
 A fun and interactive 2D Block Breaker (Brick Breaker) game built using **Python** and **Pygame**.  
